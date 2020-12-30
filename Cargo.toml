@@ -10,4 +10,13 @@ edition = "2018"
 # piston = "0.52.1"
 # piston_window = "0.116.0"
 
-bevy = "*"
+# bevy = "*"
+
+env_logger = "0.7.1"
+log = "0.4.8"
+pixels =  "*"
+winit = "0.22.0"
+winit_input_helper = "0.6.0"
+
+image = "0.23.12"
+rand = "*"
