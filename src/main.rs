@@ -5,9 +5,41 @@ use tetra::input::{self, Key};
 use tetra::math::Vec2;
 use tetra::{Context, ContextBuilder, Event, State};
 
+mod chess {
+    fn from_map_coordinates(column: i32, row: i32) -> String {
+        if column >= (27 * 26) {
+            panic!("parameter column out of range [0..{}): {}", 27 * 26, column);
+        }
+        let alphabet : Vec<char> = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect();
+        let first_c : usize = (column / 26) as usize;
+        let second_c : usize = (column % 26) as usize;
+
+        let s : String = format!("{}{}{}", 
+            if column >= 26 { alphabet[first_c-1].into() } else { ' ' },
+            alphabet[second_c],
+            row+1,
+        );
+        s.trim().to_string()
+    }
+
+    #[test]
+    fn test_chess_coordinates() {
+        assert_eq!("A1", from_map_coordinates(0, 0));
+        assert_eq!("A5", from_map_coordinates(0, 4));
+        assert_eq!("B2", from_map_coordinates(1, 1));
+        assert_eq!("Z1", from_map_coordinates(25, 0));
+        assert_eq!("AA1", from_map_coordinates(26, 0));
+        assert_eq!("AB1", from_map_coordinates(27, 0));
+        assert_eq!("YZ1", from_map_coordinates(675, 0));
+        assert_eq!("ZA1", from_map_coordinates(676, 0));
+        assert_eq!("ZB1", from_map_coordinates(677, 0));
+        assert_eq!("ZZ1", from_map_coordinates(701, 0));
+        // from_map_coordinates(702, 0); // panic!
+    }
+}
 const MOVEMENT_SPEED: f32 = 4.0;
-const ROTATION_SPEED: f32 = 0.1;
 const ZOOM_SPEED: f32 = 0.1;
+
 
 struct Battlemap {
     texture: Texture,
@@ -18,30 +50,25 @@ struct Battlemap {
 impl Battlemap {
     fn render(&mut self, ctx: &mut Context) -> tetra::Result {
         // Now all drawing operations will be transformed:
-        graphics::draw(
-            ctx,
-            &self.texture,
-            DrawParams::new(),
-        );
+        graphics::draw(ctx, &self.texture, DrawParams::new());
 
         let (tile_w, tile_h) = (100, 100);
 
         let c = graphics::Canvas::new(ctx, tile_w, tile_h)?;
         let data = [128; 4 * 100];
         c.set_data(ctx, 99, 0, 1, 100, &data)?;
-        c.set_data(ctx,0, 99, 100, 1, &data)?;
+        c.set_data(ctx, 0, 99, 100, 1, &data)?;
 
         for col in (0..self.columns) {
             for row in (0..self.rows) {
-                graphics::draw(ctx, &c, 
-                    DrawParams::default().position(Vec2::new(
-                        (col * tile_w) as f32,
-                        (row * tile_h) as f32,
-                    ))
+                graphics::draw(
+                    ctx,
+                    &c,
+                    DrawParams::default()
+                        .position(Vec2::new((col * tile_w) as f32, (row * tile_h) as f32)),
                 );
             }
         }
-
 
         Ok(graphics::draw(ctx, &c, DrawParams::default()))
     }
@@ -72,11 +99,11 @@ impl GameState {
 
             camera: Camera::new(2048.0, 1920.0),
 
-            battlemap: Battlemap{
+            battlemap: Battlemap {
                 texture: Texture::new(ctx, "./assets/background.jpg")?,
                 columns: 20,
                 rows: 10,
-            }
+            },
         })
     }
 }
