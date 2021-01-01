@@ -1,0 +1,1 @@
+`SourceCodePro-Black.ttf` - Open Font License - downloaded from https://fonts.google.com/specimen/Source+Code+Pro#license
