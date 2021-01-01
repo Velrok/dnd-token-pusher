@@ -9,11 +9,49 @@ const MOVEMENT_SPEED: f32 = 4.0;
 const ROTATION_SPEED: f32 = 0.1;
 const ZOOM_SPEED: f32 = 0.1;
 
-struct GameState {
+struct Battlemap {
     texture: Texture,
+    rows: i32,
+    columns: i32,
+}
+
+impl Battlemap {
+    fn render(&mut self, ctx: &mut Context) -> tetra::Result {
+        // Now all drawing operations will be transformed:
+        graphics::draw(
+            ctx,
+            &self.texture,
+            DrawParams::new(),
+        );
+
+        let (tile_w, tile_h) = (100, 100);
+
+        let c = graphics::Canvas::new(ctx, tile_w, tile_h)?;
+        let data = [128; 4 * 100];
+        c.set_data(ctx, 99, 0, 1, 100, &data)?;
+        c.set_data(ctx,0, 99, 100, 1, &data)?;
+
+        for col in (0..self.columns) {
+            for row in (0..self.rows) {
+                graphics::draw(ctx, &c, 
+                    DrawParams::default().position(Vec2::new(
+                        (col * tile_w) as f32,
+                        (row * tile_h) as f32,
+                    ))
+                );
+            }
+        }
+
+
+        Ok(graphics::draw(ctx, &c, DrawParams::default()))
+    }
+}
+
+struct GameState {
     scaler: ScreenScaler,
     camera: Camera,
     text: Text,
+    battlemap: Battlemap,
 }
 use std::str::FromStr;
 impl GameState {
@@ -30,10 +68,15 @@ impl GameState {
 
         Ok(GameState {
             text: text,
-            texture: Texture::new(ctx, "./assets/background.jpg")?,
             scaler: ScreenScaler::with_window_size(ctx, 2048, 1920, ScalingMode::CropPixelPerfect)?,
 
             camera: Camera::new(2048.0, 1920.0),
+
+            battlemap: Battlemap{
+                texture: Texture::new(ctx, "./assets/background.jpg")?,
+                columns: 20,
+                rows: 10,
+            }
         })
     }
 }
@@ -77,14 +120,7 @@ impl State for GameState {
         // into the renderer:
         graphics::set_transform_matrix(ctx, self.camera.as_matrix());
 
-        // Now all drawing operations will be transformed:
-        graphics::draw(
-            ctx,
-            &self.texture,
-            DrawParams::new(),
-            // .origin(Vec2::new(1.0, 1.0))
-            // .scale(Vec2::new(1.0, 1.0)),
-        );
+        self.battlemap.render(ctx)?;
 
         // If you want to go back to drawing without transformations, reset the
         // matrix. This is important here, as we're going to draw more stuff

@@ -4,8 +4,8 @@ A simple D&D map engine with command support.
 
 ## TODO
 
-* Manage two windows: DM view / Player view
-* Render background image
+* Manage two windows: DM view / Player view ✅
+* Render background image ✅
 * Render grid / Cell coordinates
 * Token Part 1 (image, position, visible, size): Rendering, Commands
 * Fog Of War (Rendering, Command Inputs: Reveal/Shadow)
