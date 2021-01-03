@@ -34,7 +34,7 @@ mod chess {
     //     assert_eq!(to_map_coordinates("ZB1"), (677, 0));
     // }
 
-    fn from_map_coordinates(column: i32, row: i32) -> String {
+    pub fn from_map_coordinates(column: i32, row: i32) -> String {
         if column >= (27 * 26) {
             panic!("parameter column out of range [0..{}): {}", 27 * 26, column);
         }
@@ -132,15 +132,23 @@ impl Battlemap {
     }
 
     fn render_grid(&mut self, ctx: &mut Context) {
+        let (tile_w, tile_h) = self.grid_size();
+        // TODO cache assests in global game state
+        let font = Font::vector(ctx, "./assets/SourceCodePro-Black.ttf", 32.0)
+            .expect("Failed to load font.");
         for col in 0..self.columns {
             for row in 0..self.rows {
-                let (tile_w, tile_h) = self.grid_size();
+                let pos = Vec2::new((col * tile_w) as f32, (row * tile_h) as f32);
+                let text = Text::new(chess::from_map_coordinates(col, row), font.clone());
+
                 graphics::draw(
                     ctx,
-                    &self.tile_canvas,
+                    &text,
                     DrawParams::default()
-                        .position(Vec2::new((col * tile_w) as f32, (row * tile_h) as f32)),
+                        .position(pos)
+                        .color(Color::rgba(0.0, 0.0, 0.0, 0.25)),
                 );
+                graphics::draw(ctx, &self.tile_canvas, DrawParams::default().position(pos));
             }
         }
     }
