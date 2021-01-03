@@ -85,5 +85,5 @@ hd barb 11 # (11 / 2 floored) => 5 damage => half damage / resistant
 dd barb 20 # 40 damage => double damage / ciritical
 
 # roll some die
-2d8+5
+r 2d8+5
 ```
