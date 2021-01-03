@@ -8,6 +8,9 @@ mod chess;
 
 const MOVEMENT_SPEED: f32 = 8.0;
 const ZOOM_SPEED: f32 = 0.1;
+const EDGE_WIDTH: i32 = 3;
+const GRID_COORD_COL: Color = Color::rgba(0.0, 0.0, 0.0, 0.25);
+const BACKGROUND_COLOR: Color = Color::rgb(0.769, 0.812, 0.631);
 
 struct Battlemap {
     tile_canvas: graphics::Canvas,
@@ -52,17 +55,15 @@ impl Battlemap {
         let tile_w = (texture.width() as f64 / columns as f64).round() as i32;
         let tile_h = (texture.height() as f64 / rows as f64).round() as i32;
 
-        let edge_width = 3;
-
         // right edge
         let c = graphics::Canvas::new(ctx, tile_w, tile_h)?;
-        let data = vec![128 as u8; (4 * tile_h * edge_width) as usize];
-        let (x, y, width, height) = (tile_w - edge_width, 0, edge_width, tile_h);
+        let data = vec![128 as u8; (4 * tile_h * EDGE_WIDTH) as usize];
+        let (x, y, width, height) = (tile_w - EDGE_WIDTH, 0, EDGE_WIDTH, tile_h);
         c.set_data(ctx, x, y, width, height, &*data)?;
 
         // bottom edge
-        let data = vec![128 as u8; (4 * tile_w * edge_width) as usize];
-        let (x, y, width, height) = (0, tile_h - edge_width, tile_w, edge_width);
+        let data = vec![128 as u8; (4 * tile_w * EDGE_WIDTH) as usize];
+        let (x, y, width, height) = (0, tile_h - EDGE_WIDTH, tile_w, EDGE_WIDTH);
         c.set_data(ctx, x, y, width, height, &*data)?;
         Ok(c)
     }
@@ -80,9 +81,7 @@ impl Battlemap {
                 graphics::draw(
                     ctx,
                     &text,
-                    DrawParams::default()
-                        .position(pos)
-                        .color(Color::rgba(0.0, 0.0, 0.0, 0.25)),
+                    DrawParams::default().position(pos).color(GRID_COORD_COL),
                 );
                 graphics::draw(ctx, &self.tile_canvas, DrawParams::default().position(pos));
             }
@@ -154,7 +153,7 @@ impl State for GameState {
 
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::set_canvas(ctx, self.scaler.canvas());
-        graphics::clear(ctx, Color::rgb(0.769, 0.812, 0.631));
+        graphics::clear(ctx, BACKGROUND_COLOR);
 
         // To 'look through' the camera, we pass the calculated transform matrix
         // into the renderer:
