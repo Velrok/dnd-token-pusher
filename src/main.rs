@@ -91,9 +91,22 @@ impl Battlemap {
 }
 
 mod commands {
-    struct Command;
+    pub enum Command {
+        Dummy,
+    }
 
-    pub fn parse(lines: String) -> Vec<Command> {}
+    pub fn parse(content: String) -> Vec<Command> {
+        use Command::*;
+        content
+            .lines()
+            .map(|l| {
+                let words: Vec<_> = l.split_whitespace().collect();
+                match words[0] {
+                    _ => Dummy,
+                }
+            })
+            .collect()
+    }
 }
 
 struct GameState {
