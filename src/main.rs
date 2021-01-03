@@ -1,3 +1,4 @@
+use std::fs;
 use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
 use tetra::graphics::text::*;
 use tetra::graphics::{self, Camera, Color, DrawParams, Texture};
@@ -89,6 +90,12 @@ impl Battlemap {
     }
 }
 
+mod commands {
+    struct Command;
+
+    pub fn parse(lines: String) -> Vec<Command> {}
+}
+
 struct GameState {
     scaler: ScreenScaler,
     camera: Camera,
@@ -100,11 +107,14 @@ impl GameState {
     fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         let args: Vec<String> = ::std::env::args().collect();
         let dm_mode = args.contains(&String::from("--dm"));
-        let _file = &args
+        let file_name = &args
             .iter()
             .nth(1)
             .expect("first arg need to be a game file name");
         println!("{:?}", args);
+
+        let commands =
+            commands::parse(fs::read_to_string(file_name).expect("Failed to read game state."));
 
         let text = Text::new(
             if dm_mode { "DM Mode" } else { "Player Mode" },
