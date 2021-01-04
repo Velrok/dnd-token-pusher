@@ -6,10 +6,12 @@ use tetra::input::{self, Key};
 use tetra::math::Vec2;
 use tetra::{Context, ContextBuilder, Event, State};
 mod chess;
-use io::Write;
 use std::io;
 use std::sync::mpsc::channel;
 use std::thread;
+
+// use caith::Roller;
+// use caith::{RollResult, RollResultType, Roller};
 
 const MOVEMENT_SPEED: f32 = 8.0;
 const ZOOM_SPEED: f32 = 0.1;
@@ -95,8 +97,30 @@ impl Battlemap {
 }
 
 mod commands {
+    #[derive(Debug)]
     pub enum Command {
-        Dummy,
+        PrintHelp,
+        Quit,
+        Role(String),
+    }
+
+    pub const HELP: &str = "Commands:
+q | quit | exit -> terminate programm
+r 3d6 + 5       -> roll dice and do some math
+r 2d20 K1       -> advantage (keep highest one)
+r 2d20 k1       -> disadvantage (keep lowest one)
+h | help | ?    -> print this help";
+
+    pub fn run(cmd: &Command) {
+        use Command::*;
+        match cmd {
+            Quit => std::process::exit(0),
+            PrintHelp => println!("{}", HELP),
+            Role(l) => {
+                let result = caith::Roller::new(l).unwrap().roll().unwrap();
+                println!("-> {}", result);
+            }
+        }
     }
 
     pub fn parse(content: String) -> Vec<Command> {
@@ -106,7 +130,11 @@ mod commands {
             .map(|l| {
                 let words: Vec<_> = l.split_whitespace().collect();
                 match words[0] {
-                    _ => Dummy,
+                    "q" => Quit,
+                    "quit" => Quit,
+                    "exit" => Quit,
+                    "r" => Role(l.to_owned().replace("r ", "")),
+                    _ => PrintHelp,
                 }
             })
             .collect()
@@ -135,10 +163,9 @@ impl GameState {
 
         thread::spawn(move || {
             let stdin = io::stdin();
+            println!("{}", commands::HELP);
             loop {
                 let mut line_input = String::new();
-                print!("ᐅ ");
-                if let _ = io::stdout().flush() {}; // TODO handle error case
                 match stdin.read_line(&mut line_input) {
                     Ok(_bytes) => tx
                         .send(line_input.trim().to_owned())
@@ -169,7 +196,13 @@ impl GameState {
 impl State for GameState {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result {
         match self.msg_chan.try_recv() {
-            Ok(msg) => println!("message -> {:?}", msg),
+            Ok(msg) => {
+                let cmds = commands::parse(msg);
+                for cmd in cmds {
+                    println!("Command: {:?}", cmd);
+                    commands::run(&cmd);
+                }
+            }
             Err(_) => {}
         }
 
