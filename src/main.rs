@@ -6,6 +6,10 @@ use tetra::input::{self, Key};
 use tetra::math::Vec2;
 use tetra::{Context, ContextBuilder, Event, State};
 mod chess;
+use io::Write;
+use std::io;
+use std::sync::mpsc::channel;
+use std::thread;
 
 const MOVEMENT_SPEED: f32 = 8.0;
 const ZOOM_SPEED: f32 = 0.1;
@@ -110,6 +114,7 @@ mod commands {
 }
 
 struct GameState {
+    msg_chan: std::sync::mpsc::Receiver<String>,
     scaler: ScreenScaler,
     camera: Camera,
     text: Text,
@@ -126,7 +131,24 @@ impl GameState {
             .expect("first arg need to be a game file name");
         println!("{:?}", args);
 
-        let commands =
+        let (tx, rx) = channel();
+
+        thread::spawn(move || {
+            let stdin = io::stdin();
+            loop {
+                let mut line_input = String::new();
+                print!("ᐅ ");
+                if let _ = io::stdout().flush() {}; // TODO handle error case
+                match stdin.read_line(&mut line_input) {
+                    Ok(_bytes) => tx
+                        .send(line_input.trim().to_owned())
+                        .expect("Unable to send on channel"),
+                    Err(e) => eprintln!("Error reading input: {:?}", e),
+                }
+            }
+        });
+
+        let _commands =
             commands::parse(fs::read_to_string(file_name).expect("Failed to read game state."));
 
         let text = Text::new(
@@ -135,6 +157,7 @@ impl GameState {
         );
 
         Ok(GameState {
+            msg_chan: rx,
             text,
             scaler: ScreenScaler::with_window_size(ctx, 2048, 1920, ScalingMode::CropPixelPerfect)?,
             camera: Camera::new(2048.0, 1920.0),
@@ -145,6 +168,11 @@ impl GameState {
 
 impl State for GameState {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result {
+        match self.msg_chan.try_recv() {
+            Ok(msg) => println!("message -> {:?}", msg),
+            Err(_) => {}
+        }
+
         if input::is_key_down(ctx, Key::W) || input::is_key_down(ctx, Key::Up) {
             self.camera.position.y -= MOVEMENT_SPEED;
         }
