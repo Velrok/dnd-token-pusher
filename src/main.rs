@@ -1,6 +1,7 @@
 use tetra::ContextBuilder;
 mod chess;
 mod commands;
+mod domain;
 mod game;
 
 fn main() -> tetra::Result {

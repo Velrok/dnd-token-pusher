@@ -1,9 +1,40 @@
-use std::path::PathBuf;
 use structopt::StructOpt;
+
+mod opts {
+    use std::path::PathBuf;
+    use structopt::StructOpt;
+
+    #[derive(StructOpt, Debug, PartialEq)]
+    pub struct Battlemap {
+        #[structopt(long)]
+        url: PathBuf,
+        #[structopt(long)]
+        columns: i32,
+        #[structopt(long)]
+        rows: i32,
+    }
+
+    #[test]
+    fn opts_test() {
+        assert_eq!(
+            Battlemap {
+                url: PathBuf::from("./assets/background.jpg"),
+                columns: 100,
+                rows: 100
+            },
+            Battlemap::from_iter_safe(
+                "battlemap --url=./assets/background.jpg --columns=100 --rows=100"
+                    .split_whitespace()
+            )
+            .unwrap()
+        )
+    }
+}
 
 #[derive(Debug)]
 pub enum Command {
-    PrintHelp,
+    Battlemap(opts::Battlemap),
+    PrintHelp(String),
     Quit,
     Role(String),
 }
@@ -19,7 +50,7 @@ pub fn run(cmd: &Command) {
     use Command::*;
     match cmd {
         Quit => std::process::exit(0),
-        PrintHelp => println!("{}", HELP),
+        PrintHelp(l) => println!("Unknows command: {}\n{}", l, HELP),
         Role(l) => {
             let result = caith::Roller::new(l).unwrap().roll().unwrap();
             println!("-> {}", result);
@@ -38,33 +69,11 @@ pub fn parse(content: String) -> Vec<Command> {
                 "quit" => Quit,
                 "exit" => Quit,
                 "r" => Role(l.to_owned().replace("r ", "")),
-                _ => PrintHelp,
+                "battlemap" => {
+                    Battlemap(opts::Battlemap::from_iter_safe(l.split_whitespace()).unwrap())
+                }
+                _ => PrintHelp(l.to_owned()),
             }
         })
         .collect()
-}
-
-#[derive(StructOpt, Debug, PartialEq)]
-struct Battlemap {
-    #[structopt(long)]
-    url: PathBuf,
-    #[structopt(long)]
-    columns: i32,
-    #[structopt(long)]
-    rows: i32,
-}
-
-#[test]
-fn opts_test() {
-    assert_eq!(
-        Battlemap {
-            url: PathBuf::from("./assets/background.jpg"),
-            columns: 100,
-            rows: 100
-        },
-        Battlemap::from_iter_safe(
-            "battlemap --url=./assets/background.jpg --columns=100 --rows=100".split_whitespace(),
-        )
-        .unwrap()
-    )
 }
