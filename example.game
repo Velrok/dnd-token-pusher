@@ -1,1 +1,1 @@
-battlemap --url=./assets/background.jpg --columns=100 --rows=100
+battlemap --url=./assets/background.jpg --columns=22 --rows=17
