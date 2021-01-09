@@ -7,20 +7,20 @@ mod opts {
     #[derive(StructOpt, Debug, PartialEq)]
     pub struct Battlemap {
         #[structopt(long)]
-        url: PathBuf,
+        pub url: Option<String>,
         #[structopt(long)]
-        columns: i32,
+        pub columns: Option<i32>,
         #[structopt(long)]
-        rows: i32,
+        pub rows: Option<i32>,
     }
 
     #[test]
     fn opts_test() {
         assert_eq!(
             Battlemap {
-                url: PathBuf::from("./assets/background.jpg"),
-                columns: 100,
-                rows: 100
+                url: Some(String::from("./assets/background.jpg")),
+                columns: Some(100),
+                rows: Some(100)
             },
             Battlemap::from_iter_safe(
                 "battlemap --url=./assets/background.jpg --columns=100 --rows=100"
@@ -45,18 +45,6 @@ r 3d6 + 5       -> roll dice and do some math
 r 2d20 K1       -> advantage (keep highest one)
 r 2d20 k1       -> disadvantage (keep lowest one)
 h | help | ?    -> print this help";
-
-pub fn run(cmd: &Command) {
-    use Command::*;
-    match cmd {
-        Quit => std::process::exit(0),
-        PrintHelp(l) => println!("Unknows command: {}\n{}", l, HELP),
-        Role(l) => {
-            let result = caith::Roller::new(l).unwrap().roll().unwrap();
-            println!("-> {}", result);
-        }
-    }
-}
 
 pub fn parse(content: String) -> Vec<Command> {
     use Command::*;

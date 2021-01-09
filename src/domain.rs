@@ -9,18 +9,20 @@ const GRID_COORD_COL: Color = Color::rgba(0.0, 0.0, 0.0, 0.25);
 
 pub struct Battlemap {
     tile_canvas: graphics::Canvas,
-    texture: Texture,
-    rows: i32,
-    columns: i32,
+    pub image_path: String,
+    pub texture: Texture,
+    pub rows: i32,
+    pub columns: i32,
 }
 
 impl Battlemap {
-    pub fn new(ctx: &mut Context, image_path: &str, rows: i32, columns: i32) -> Self {
-        let texture = Texture::new(ctx, image_path)
-            .expect(format!("Can't read file {:?}", image_path).as_str());
+    pub fn new(ctx: &mut Context, image_path: String, rows: i32, columns: i32) -> Self {
+        let texture =
+            Texture::new(ctx, image_path.to_owned()).expect(format!("Can't read file.").as_str());
         let tile_canvas = Self::new_tile_canvas(rows, columns, &texture, ctx)
             .expect("Failed to create tile canvas.");
         Battlemap {
+            image_path: image_path.to_owned(),
             tile_canvas,
             texture,
             rows,

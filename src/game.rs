@@ -7,15 +7,15 @@ use std::thread;
 use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
 use tetra::graphics::text::Font;
 use tetra::graphics::text::Text;
-use tetra::graphics::{self, Camera, Color, DrawParams};
+use tetra::graphics::{self, Camera, Color, DrawParams, Texture};
 use tetra::input::{self, Key};
 use tetra::math::Vec2;
 use tetra::{Context, Event, State};
 
 const MOVEMENT_SPEED: f32 = 8.0;
 const ZOOM_SPEED: f32 = 0.1;
-const EDGE_WIDTH: i32 = 3;
-const GRID_COORD_COL: Color = Color::rgba(0.0, 0.0, 0.0, 0.25);
+//  const EDGE_WIDTH: i32 = 3;
+// const GRID_COORD_COL: Color = Color::rgba(0.0, 0.0, 0.0, 0.25);
 const BACKGROUND_COLOR: Color = Color::rgb(0.769, 0.812, 0.631);
 
 pub struct GameState {
@@ -47,6 +47,7 @@ impl GameState {
                 tx.send(l.trim().to_owned())
                     .expect("Failed to send command to channel.");
             }
+
             let stdin = io::stdin();
             println!("{}", commands::HELP);
 
@@ -71,8 +72,32 @@ impl GameState {
             text,
             scaler: ScreenScaler::with_window_size(ctx, 2048, 1920, ScalingMode::CropPixelPerfect)?,
             camera: Camera::new(2048.0, 1920.0),
-            battlemap: domain::Battlemap::new(ctx, "./assets/background.jpg", 10, 20),
+            battlemap: domain::Battlemap::new(ctx, "./assets/bg_placeholder.jpg".into(), 12, 20),
         })
+    }
+}
+
+pub fn run(ctx: &mut Context, game_state: &mut GameState, cmd: &commands::Command) {
+    use commands::Command::*;
+    match cmd {
+        Quit => std::process::exit(0),
+        PrintHelp(l) => println!("Unknows command: {}\n{}", l, commands::HELP),
+        Role(l) => {
+            let result = caith::Roller::new(l).unwrap().roll().unwrap();
+            println!("-> {}", result);
+        }
+        Battlemap(ref b_map_opts) => {
+            let bm = &game_state.battlemap;
+            game_state.battlemap = domain::Battlemap::new(
+                ctx,
+                match b_map_opts.url.to_owned() {
+                    Some(image_path) => image_path,
+                    None => bm.image_path.to_owned(),
+                },
+                b_map_opts.rows.unwrap_or(bm.rows),
+                b_map_opts.columns.unwrap_or(bm.columns),
+            );
+        }
     }
 }
 
@@ -84,11 +109,7 @@ impl State for GameState {
                 let cmds = commands::parse(msg);
                 for cmd in cmds {
                     println!("Command: {:?}", cmd);
-                    commands::run(&cmd);
-                    // TODO: handle commands to change game state. Need a loosely coupled solution
-                    // here :/ .
-                    // Note: commands::run(&cmd); would need a mut game state passed in which
-                    // doesn't feel right. Specailly because not all commands would need it :( .
+                    run(ctx, self, &cmd);
                 }
             }
             Err(_) => {}
