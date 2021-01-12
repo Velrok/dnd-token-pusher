@@ -120,7 +120,9 @@ impl Token {
         let (tile_w, tile_h) = bm.grid_size();
 
         let pos = Vec2::new((col * tile_w) as f32, (row * tile_h) as f32);
-        let scale = Vec2::new(tile_w  as f32/ w, tile_h  as f32/ h);
+
+        let uniscale = (tile_w as f32 / w).min(tile_h as f32 / h);
+        let scale = Vec2::new(uniscale, uniscale);
         graphics::draw(ctx, &self.texture, DrawParams::default().position(pos).scale(scale));
     }
 }
