@@ -87,10 +87,12 @@ pub fn run(ctx: &mut Context, game_state: &mut GameState, cmd: &commands::Comman
     match cmd {
         Quit => std::process::exit(0),
         PrintHelp(l) => println!("Unknows command: {}\n{}", l, commands::HELP),
-        Role(l) => {
-            let result = caith::Roller::new(l).unwrap().roll().unwrap();
-            println!("-> {}", result);
-        }
+        Role(roller) => match roller.roll() {
+            Ok(result) => println!("-> {}", result),
+            Err(_) => {
+                eprintln!("Can't roll this: {:?}", roller)
+            }
+        },
         UpdateBattlemap(ref b_map_opts) => {
             let bm = &game_state.battlemap;
             game_state.battlemap = domain::Battlemap::new(

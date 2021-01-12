@@ -35,7 +35,7 @@ pub enum Command {
     UpdateBattlemap(opts::Battlemap),
     PrintHelp(String),
     Quit,
-    Role(String),
+    Role(caith::Roller),
 }
 
 pub const HELP: &str = "Commands:
@@ -55,7 +55,13 @@ pub fn parse(content: String) -> Vec<Result<Command, String>> {
                 "q" => Ok(Quit),
                 "quit" => Ok(Quit),
                 "exit" => Ok(Quit),
-                "r" => Ok(Role(l.to_owned().replace("r ", ""))),
+                "r" => {
+                    let roller = caith::Roller::new(&l.to_owned().replace("r ", ""));
+                    match roller {
+                        Ok(r) => Ok(Role(r)),
+                        Err(_) => Err(format!("Can't parse role from {}", l)),
+                    }
+                }
                 "battlemap" => match opts::Battlemap::from_iter_safe(l.split_whitespace()) {
                     Ok(x) => Ok(UpdateBattlemap(x)),
                     Err(_) => Err(format!("Can't parse battlemap command from {}", l)),
