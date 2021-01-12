@@ -45,21 +45,22 @@ r 2d20 K1       -> advantage (keep highest one)
 r 2d20 k1       -> disadvantage (keep lowest one)
 h | help | ?    -> print this help";
 
-pub fn parse(content: String) -> Vec<Command> {
+pub fn parse(content: String) -> Vec<Result<Command, String>> {
     use Command::*;
     content
         .lines()
         .map(|l| {
             let words: Vec<_> = l.split_whitespace().collect();
             match words[0] {
-                "q" => Quit,
-                "quit" => Quit,
-                "exit" => Quit,
-                "r" => Role(l.to_owned().replace("r ", "")),
-                "battlemap" => {
-                    UpdateBattlemap(opts::Battlemap::from_iter_safe(l.split_whitespace()).unwrap())
-                }
-                _ => PrintHelp(l.to_owned()),
+                "q" => Ok(Quit),
+                "quit" => Ok(Quit),
+                "exit" => Ok(Quit),
+                "r" => Ok(Role(l.to_owned().replace("r ", ""))),
+                "battlemap" => match opts::Battlemap::from_iter_safe(l.split_whitespace()) {
+                    Ok(x) => Ok(UpdateBattlemap(x)),
+                    Err(_) => Err(format!("Can't parse battlemap command from {}", l)),
+                },
+                _ => Ok(PrintHelp(l.to_owned())),
             }
         })
         .collect()

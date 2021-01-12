@@ -114,7 +114,10 @@ impl State for GameState {
                 let cmds = commands::parse(msg);
                 for cmd in cmds {
                     println!("Command: {:?}", cmd); // debug
-                    run(ctx, self, &cmd);
+                    match cmd {
+                        Ok(c) => run(ctx, self, &c),
+                        Err(e) => println!("Err: {}", e),
+                    }
                 }
             }
             Err(_) => {}
