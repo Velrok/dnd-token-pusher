@@ -1,7 +1,6 @@
 use structopt::StructOpt;
 
 mod opts {
-    use std::path::PathBuf;
     use structopt::StructOpt;
 
     #[derive(StructOpt, Debug, PartialEq)]

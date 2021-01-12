@@ -7,15 +7,13 @@ use std::thread;
 use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
 use tetra::graphics::text::Font;
 use tetra::graphics::text::Text;
-use tetra::graphics::{self, Camera, Color, DrawParams, Texture};
+use tetra::graphics::{self, Camera, Color, DrawParams};
 use tetra::input::{self, Key};
 use tetra::math::Vec2;
 use tetra::{Context, Event, State};
 
 const MOVEMENT_SPEED: f32 = 8.0;
 const ZOOM_SPEED: f32 = 0.1;
-//  const EDGE_WIDTH: i32 = 3;
-// const GRID_COORD_COL: Color = Color::rgba(0.0, 0.0, 0.0, 0.25);
 const BACKGROUND_COLOR: Color = Color::rgb(0.769, 0.812, 0.631);
 
 pub struct GameState {
@@ -37,12 +35,18 @@ impl GameState {
             .expect("first arg need to be a game file name")
             .to_owned();
 
+        // handle command line input in a separate thread
+        // and communicate with main thread via channel
         let (tx, rx) = channel();
 
+        // cli thread
         thread::spawn(move || {
+            // read file and produce messages
+            // tried to have this in main thread but rust didn't like it
             let file_content = fs::read_to_string(file_name);
             println!("file_content> {:?}", file_content);
 
+            // tread each line as if it where typed by a person
             for l in file_content.unwrap().lines() {
                 tx.send(l.trim().to_owned())
                     .expect("Failed to send command to channel.");
@@ -51,6 +55,7 @@ impl GameState {
             let stdin = io::stdin();
             println!("{}", commands::HELP);
 
+            // continuesly listen for new messages
             loop {
                 let mut line_input = String::new();
                 match stdin.read_line(&mut line_input) {
@@ -105,10 +110,10 @@ impl State for GameState {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result {
         match self.msg_chan.try_recv() {
             Ok(msg) => {
-                println!("msg> {}", msg);
+                println!("msg> {}", msg); // debug
                 let cmds = commands::parse(msg);
                 for cmd in cmds {
-                    println!("Command: {:?}", cmd);
+                    println!("Command: {:?}", cmd); // debug
                     run(ctx, self, &cmd);
                 }
             }
