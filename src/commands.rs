@@ -4,6 +4,30 @@ mod opts {
     use structopt::StructOpt;
 
     #[derive(StructOpt, Debug, PartialEq)]
+    pub struct Token {
+        // positional argument
+        pub token_id: String,
+
+        #[structopt(long)]
+        pub image: Option<String>,
+
+        #[structopt(long)]
+        pub name: Option<String>,
+
+        #[structopt(long)]
+        pub size: Option<String>,
+
+        #[structopt(long = "max-health")]
+        pub max_health: Option<i32>,
+
+        #[structopt(long)]
+        pub pos: Option<String>,
+
+        #[structopt(long)]
+        pub initiative: Option<i32>,
+    }
+
+    #[derive(StructOpt, Debug, PartialEq)]
     pub struct Battlemap {
         #[structopt(long)]
         pub url: Option<String>,
@@ -14,7 +38,7 @@ mod opts {
     }
 
     #[test]
-    fn opts_test() {
+    fn opts_battlemap_test() {
         assert_eq!(
             Battlemap {
                 url: Some(String::from("./assets/background.jpg")),
@@ -28,17 +52,39 @@ mod opts {
             .unwrap()
         )
     }
+    #[test]
+    fn opts_token_test() {
+        assert_eq!(
+            Token {
+                token_id: "goblinking".into(),
+                image: Some(String::from("goblin.png")),
+                name: Some("Goblin".into()),
+                size: Some("small".into()),
+                max_health: Some(5),
+                pos: Some("A1".into()),
+                initiative: Some(11),
+            },
+            Token::from_iter_safe(
+                "token goblinking --image=goblin.png --name=Goblin --size=small --max-health=5 --pos=A1 --initiative=11"
+                    .split_whitespace()
+            )
+            .unwrap()
+        )
+    }
 }
 
 #[derive(Debug)]
 pub enum Command {
     UpdateBattlemap(opts::Battlemap),
+    UpdateToken(opts::Token),
     PrintHelp(String),
     Quit,
     Role(caith::Roller),
 }
 
 pub const HELP: &str = "Commands:
+battlemap       -> update battlemap settings
+token           -> create or update token
 q | quit | exit -> terminate programm
 r 3d6 + 5       -> roll dice and do some math
 r 2d20 K1       -> advantage (keep highest one)
@@ -65,6 +111,12 @@ pub fn parse(content: String) -> Vec<Result<Command, String>> {
                 "battlemap" => match opts::Battlemap::from_iter_safe(l.split_whitespace()) {
                     Ok(x) => Ok(UpdateBattlemap(x)),
                     Err(_) => Err(format!("Can't parse battlemap command from {}", l)),
+                },
+                "token" => {
+                    match opts::Token::from_iter_safe(l.split_whitespace()) {
+                        Ok(x) => Ok(UpdateToken(x)),
+                        Err(_) => Err(format!("Can't parse token command from {}", l)),
+                    }
                 },
                 _ => Ok(PrintHelp(l.to_owned())),
             }

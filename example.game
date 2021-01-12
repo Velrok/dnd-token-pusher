@@ -1,1 +1,2 @@
 battlemap --url=./assets/background.jpg --columns=22 --rows=17
+token goblinking --image=goblin.png --name=Goblin --size=small --max-health=5 --pos=A1 --initiative=11

@@ -22,6 +22,7 @@ pub struct GameState {
     camera: Camera,
     text: Text,
     battlemap: domain::Battlemap,
+    tokens: Vec<domain::Token>,
 }
 
 impl GameState {
@@ -78,6 +79,7 @@ impl GameState {
             scaler: ScreenScaler::with_window_size(ctx, 2048, 1920, ScalingMode::CropPixelPerfect)?,
             camera: Camera::new(2048.0, 1920.0),
             battlemap: domain::Battlemap::new(ctx, "./assets/bg_placeholder.jpg".into(), 12, 20),
+            tokens: vec![domain::Token{id: 1}],
         })
     }
 }
@@ -104,6 +106,9 @@ pub fn run(ctx: &mut Context, game_state: &mut GameState, cmd: &commands::Comman
                 b_map_opts.rows.unwrap_or(bm.rows),
                 b_map_opts.columns.unwrap_or(bm.columns),
             );
+        }
+        UpdateToken(ref token_opts) => {
+            println!("{:?}", token_opts)
         }
     }
 }

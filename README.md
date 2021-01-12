@@ -7,7 +7,7 @@ A simple D&D map engine with command support.
 * Manage two windows: DM view / Player view ✅
 * Render background image ✅
 * Render grid / Cell coordinates ✅
-* Load initial commands from file (`./dnd-token-pusher dungeon1_save20201229.txt`)
+* Load initial commands from file (`./dnd-token-pusher dungeon1_save20201229.txt`) ✅
 * Token Part 1 (image, position, visible, size): Rendering, Commands
 * Fog Of War (Rendering, Command Inputs: Reveal/Shadow)
 * Command Input: Battlemap
@@ -57,11 +57,11 @@ Maybe Later:
 
 ```bash
 battlemap --url=https://i.redd.it/q2uayh37ndb41.png --width=12 --height=12
-token goblinking --image=globin.png --name=Goblin --size=small --max-health=5 --pos=A1 --initiative=11
+token goblinking --image=goblin.png --name=Goblin --size=small --max-health=5 --pos=A1 --initiative=11
 token barb --image=barbarian.png --name=Kuglor --size=medium --health=15 --max-health=22 --pos=D3 --visible
 token goblinking --image=dead.png --health=0
 token barb --pos=F2
-token goblinwarrior --url=globin.png --name=Goblin --size=small --max-health=5 --pos=A5
+token goblinwarrior --url=goblin.png --name=Goblin --size=small --max-health=5 --pos=A5
 ```
 
 Commands the DM can use directly during a session:

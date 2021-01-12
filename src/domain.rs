@@ -4,6 +4,7 @@ use tetra::graphics::text::Text;
 use tetra::graphics::{self, Color, DrawParams, Texture};
 use tetra::math::Vec2;
 use tetra::Context;
+
 const EDGE_WIDTH: i32 = 3;
 const GRID_COORD_COL: Color = Color::rgba(0.0, 0.0, 0.0, 0.25);
 
@@ -84,4 +85,8 @@ impl Battlemap {
             }
         }
     }
+}
+
+pub struct Token {
+    pub id: i32
 }
