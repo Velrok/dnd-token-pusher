@@ -216,6 +216,7 @@ impl State for GameState {
         graphics::set_transform_matrix(ctx, self.camera.as_matrix());
 
         self.battlemap.render(ctx);
+        self.token.as_ref().map(|t| t.render(ctx, &self.battlemap));
 
         // If you want to go back to drawing without transformations, reset the
         // matrix. This is important here, as we're going to draw more stuff

@@ -96,12 +96,31 @@ pub struct Token {
     pub max_health: i32,
     pub pos: String,
     pub initiative: i32,
+
+    pub texture: Texture,
 }
 
 impl Token {
     pub fn new(ctx: &mut Context, id: String, image: String, name: String, size: String, max_health: i32, pos: String, initiative: i32) -> Self {
+        let texture =
+            Texture::new(ctx, image.to_owned()).expect(format!("Can't read file.").as_str());
+
         Self{
-            id, image, name, size, max_health, pos, initiative,
+            id, image, name, size, max_health, pos, initiative, 
+            texture,
         }
+    }
+
+    pub fn render(&self, ctx: &mut Context, bm: &Battlemap) {
+        let w = self.texture.width() as f32;
+        let h = self.texture.height() as f32;
+
+        let (col,row) = (1, 0); // A2 TODO
+
+        let (tile_w, tile_h) = bm.grid_size();
+
+        let pos = Vec2::new((col * tile_w) as f32, (row * tile_h) as f32);
+        let scale = Vec2::new(tile_w  as f32/ w, tile_h  as f32/ h);
+        graphics::draw(ctx, &self.texture, DrawParams::default().position(pos).scale(scale));
     }
 }
