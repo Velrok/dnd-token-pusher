@@ -91,7 +91,7 @@ pub fn run(ctx: &mut Context, game_state: &mut GameState, cmd: &commands::Comman
             let result = caith::Roller::new(l).unwrap().roll().unwrap();
             println!("-> {}", result);
         }
-        Battlemap(ref b_map_opts) => {
+        UpdateBattlemap(ref b_map_opts) => {
             let bm = &game_state.battlemap;
             game_state.battlemap = domain::Battlemap::new(
                 ctx,

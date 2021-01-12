@@ -32,7 +32,7 @@ mod opts {
 
 #[derive(Debug)]
 pub enum Command {
-    Battlemap(opts::Battlemap),
+    UpdateBattlemap(opts::Battlemap),
     PrintHelp(String),
     Quit,
     Role(String),
@@ -57,7 +57,7 @@ pub fn parse(content: String) -> Vec<Command> {
                 "exit" => Quit,
                 "r" => Role(l.to_owned().replace("r ", "")),
                 "battlemap" => {
-                    Battlemap(opts::Battlemap::from_iter_safe(l.split_whitespace()).unwrap())
+                    UpdateBattlemap(opts::Battlemap::from_iter_safe(l.split_whitespace()).unwrap())
                 }
                 _ => PrintHelp(l.to_owned()),
             }
