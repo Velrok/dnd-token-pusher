@@ -3,7 +3,7 @@ use structopt::StructOpt;
 mod opts {
     use structopt::StructOpt;
 
-    #[derive(StructOpt, Debug, PartialEq)]
+    #[derive(StructOpt, Debug, PartialEq, Clone)]
     pub struct Token {
         // positional argument
         pub token_id: String,
@@ -27,7 +27,7 @@ mod opts {
         pub initiative: Option<i32>,
     }
 
-    #[derive(StructOpt, Debug, PartialEq)]
+    #[derive(StructOpt, Debug, PartialEq, Clone)]
     pub struct Battlemap {
         #[structopt(long)]
         pub url: Option<String>,

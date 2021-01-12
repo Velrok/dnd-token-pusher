@@ -87,6 +87,21 @@ impl Battlemap {
     }
 }
 
+#[derive(Debug,PartialEq)]
 pub struct Token {
-    pub id: i32
+    pub id: String,
+    pub image: String,
+    pub name: String,
+    pub size: String,
+    pub max_health: i32,
+    pub pos: String,
+    pub initiative: i32,
+}
+
+impl Token {
+    pub fn new(ctx: &mut Context, id: String, image: String, name: String, size: String, max_health: i32, pos: String, initiative: i32) -> Self {
+        Self{
+            id, image, name, size, max_health, pos, initiative,
+        }
+    }
 }

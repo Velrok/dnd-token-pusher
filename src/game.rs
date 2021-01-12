@@ -1,5 +1,6 @@
 use crate::commands;
 use crate::domain;
+
 use std::fs;
 use std::io;
 use std::sync::mpsc::channel;
@@ -22,7 +23,7 @@ pub struct GameState {
     camera: Camera,
     text: Text,
     battlemap: domain::Battlemap,
-    tokens: Vec<domain::Token>,
+    token: Option<domain::Token>, // HashMap<String, domain::Token>,
 }
 
 impl GameState {
@@ -79,7 +80,7 @@ impl GameState {
             scaler: ScreenScaler::with_window_size(ctx, 2048, 1920, ScalingMode::CropPixelPerfect)?,
             camera: Camera::new(2048.0, 1920.0),
             battlemap: domain::Battlemap::new(ctx, "./assets/bg_placeholder.jpg".into(), 12, 20),
-            tokens: vec![domain::Token{id: 1}],
+            token: None,
         })
     }
 }
@@ -108,7 +109,54 @@ pub fn run(ctx: &mut Context, game_state: &mut GameState, cmd: &commands::Comman
             );
         }
         UpdateToken(ref token_opts) => {
-            println!("{:?}", token_opts)
+            // println!("{:?}", token_opts);
+
+            let token_opts = token_opts.clone();
+            let token_ref = game_state.token.as_ref();
+            let new_token = domain::Token::new(
+                ctx,
+                token_opts.token_id,
+                // token_opts.image.unwrap_or_else(|| token_ref.unwrap().image.to_owned()),
+                // token_opts.name.unwrap_or_else(|| token_ref.unwrap().name.to_owned()),
+                token_opts.image.or(token_ref.map(|t| t.image.to_owned())).unwrap_or("./assets/unnamed.png".into()),
+                token_opts.name.or(token_ref.map(|t| t.name.to_owned())).unwrap_or("Unnamed".into()),
+                token_opts.size.or(token_ref.map(|t| t.size.to_owned())).unwrap_or("small".into()),
+                token_opts.max_health.or(token_ref.map(|t| t.max_health)).unwrap_or(10),
+                token_opts.pos.or(token_ref.map(|t| t.pos.to_owned())).unwrap_or("A1".into()),
+                token_opts.initiative.or(token_ref.map(|t| t.initiative)).unwrap_or(1),
+            );
+
+            // let new_token = match &game_state.token {
+            // None => domain::Token::new(
+            //     ctx,
+            //     // id, image, name, size, max-health, pos, initiate
+            //     token_opts.token_id.to_owned(),
+            //     token_opts.image.to_owned().unwrap(),
+            //     token_opts.name.to_owned().unwrap(),
+            //     token_opts.size.to_owned().unwrap(),
+            //     token_opts.max_health.unwrap(),
+            //     token_opts.pos.to_owned().unwrap(),
+            //     token_opts.initiative.unwrap(),
+            // ),
+            // Some(ref t) => domain::Token::new(
+            //     ctx,
+            //     // id, image, name, size, max-health, pos, initiate
+            //     token_opts.token_id.to_owned(),
+            //     token_opts.image.to_owned().unwrap_or(t.image.to_owned()),
+            //     token_opts.name.to_owned().unwrap_or(t.name.to_owned()),
+            //     token_opts.size.to_owned().unwrap_or(t.size.to_owned()),
+            //     token_opts.max_health.unwrap_or(t.max_health),
+            //     token_opts.pos.to_owned().unwrap_or(t.pos.to_owned()),
+            //     token_opts.initiative.unwrap_or(t.initiative),
+            // )
+            // };
+
+
+            // lookup or create token by token_opts.token_id
+            // update fields
+            game_state.token = Some(new_token);
+
+            println!("Token State: {:?}", game_state.token);
         }
     }
 }
