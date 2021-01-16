@@ -64,6 +64,7 @@ fn test_to_map_coordinates() {
     assert_eq!(to_map_coordinates("ZB1").ok(), Some((677, 0)));
 }
 
+// TODO: make prive so we have to use the public enums!
 pub fn from_map_coordinates(column: i32, row: i32) -> String {
     if column >= (27 * BASE) {
         panic!(
@@ -101,4 +102,52 @@ fn test_chess_coordinates() {
     assert_eq!("ZB1", from_map_coordinates(677, 0));
     assert_eq!("ZZ1", from_map_coordinates(701, 0));
     // from_map_coordinates(702, 0); // panic!
+}
+
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub enum Coordinates {
+    Chess(String),
+    Map((i32, i32)),
+}
+
+impl Coordinates {
+    pub fn to_map(&self) -> Result<Coordinates, ParseError> {
+        Ok(match self {
+            Coordinates::Map(x) => Coordinates::Map(*x),
+            Coordinates::Chess(s) => Coordinates::Map(to_map_coordinates(s.as_str())?),
+        })
+    }
+
+    pub fn to_chess(&self) -> Coordinates {
+        match self {
+            Coordinates::Chess(s) => Coordinates::Chess((*s).to_owned()),
+            Coordinates::Map((col, row)) => Coordinates::Chess(from_map_coordinates(*col, *row)),
+        }
+    }
+}
+
+#[test]
+fn test_coordinates_conversion() {
+    assert_eq!(
+        Coordinates::Chess("A1".to_string()),
+        Coordinates::Chess("A1".to_string())
+    );
+    assert_eq!(
+        Coordinates::Chess("A1".to_string()),
+        Coordinates::Chess("A1".to_string()).to_chess()
+    );
+    assert_eq!(
+        Some(Coordinates::Map((0, 0))),
+        Coordinates::Chess("A1".to_string()).to_map().ok()
+    );
+
+    assert_eq!(Coordinates::Map((0, 0)), Coordinates::Map((0, 0)));
+    assert_eq!(
+        Some(Coordinates::Map((0, 0))),
+        Coordinates::Map((0, 0)).to_map().ok()
+    );
+    assert_eq!(
+        Coordinates::Chess("A1".to_string()),
+        Coordinates::Map((0, 0)).to_chess()
+    );
 }
