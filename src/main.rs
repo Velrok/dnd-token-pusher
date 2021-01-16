@@ -1,3 +1,8 @@
+#![feature(try_trait)]
+
+#[macro_use]
+extern crate lazy_static; // used in chess.rs
+
 mod chess;
 mod commands;
 mod domain;

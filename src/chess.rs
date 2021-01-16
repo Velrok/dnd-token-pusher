@@ -1,47 +1,88 @@
-// // TODO handle parsing of multi digit numbers
-// fn to_map_coordinates(chess_coords: &str) -> (i32, i32) {
-//     let row: Vec<&str> = chess_coords
-//         .matches(char::is_numeric)
-//         .collect()
-//         .nth(0)
-//         .parse::<i32>()
-//         .unwrap();
-//     let col: Vec<&str> = chess_coords.matches(char::is_alphabetic).collect();
-//     println!("split: {:?} {:?}", v1, v2);
-//     (1, 1)
-// }
+use regex::Regex;
+use std::num::ParseIntError;
+use std::option::NoneError;
 
-// #[test]
-// fn test_to_map_coordinates() {
-//     assert_eq!(to_map_coordinates("ZZ1"), (701, 0));
-//     assert_eq!(to_map_coordinates("ZZ11"), (701, 10));
-//     assert_eq!(to_map_coordinates("A1"), (0, 0));
-//     assert_eq!(to_map_coordinates("A5"), (0, 4));
-//     assert_eq!(to_map_coordinates("B2"), (1, 1));
-//     assert_eq!(to_map_coordinates("Z1"), (25, 0));
-//     assert_eq!(to_map_coordinates("AA1"), (26, 0));
-//     assert_eq!(to_map_coordinates("AB1"), (27, 0));
-//     assert_eq!(to_map_coordinates("YZ1"), (675, 0));
-//     assert_eq!(to_map_coordinates("ZA1"), (676, 0));
-//     assert_eq!(to_map_coordinates("ZB1"), (677, 0));
-// }
+const ALPHABET: [char; 26] = [
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+    'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+];
+const BASE: i32 = 26;
+
+#[derive(Debug)]
+struct ParseError {
+    err: String,
+}
+
+impl From<NoneError> for ParseError {
+    fn from(e: NoneError) -> Self {
+        ParseError {
+            err: "No match found.".into(),
+        }
+    }
+}
+
+impl From<ParseIntError> for ParseError {
+    fn from(e: ParseIntError) -> Self {
+        ParseError {
+            err: format!("{}", e),
+        }
+    }
+}
+
+fn to_map_coordinates(chess_coords: &str) -> Result<(i32, i32), ParseError> {
+    lazy_static! {
+        static ref CHESS_NOTATION_PARTS: Regex = Regex::new(r"^([A-Z]+)(\d+)$").unwrap();
+    }
+    let caps = CHESS_NOTATION_PARTS.captures(chess_coords)?;
+    let row: i32 = caps.get(2)?.as_str().parse()?;
+    let col: i32 = caps
+        .get(1)?
+        .as_str()
+        .chars()
+        .rev()
+        .enumerate()
+        .fold(0 as i32, |agg, (i, c)| {
+            let p: i32 = ALPHABET.iter().position(|&x| x == c).unwrap() as i32 + 1;
+            agg + BASE.pow(i as u32) * p
+        });
+
+    Ok((col - 1, row - 1)) // back to starting at 0
+}
+
+#[test]
+fn test_to_map_coordinates() {
+    assert_eq!(to_map_coordinates("ZZ1").ok(), Some((701, 0)));
+    assert_eq!(to_map_coordinates("ZZ11").ok(), Some((701, 10)));
+    assert_eq!(to_map_coordinates("A1").ok(), Some((0, 0)));
+    assert_eq!(to_map_coordinates("A5").ok(), Some((0, 4)));
+    assert_eq!(to_map_coordinates("B2").ok(), Some((1, 1)));
+    assert_eq!(to_map_coordinates("Z1").ok(), Some((25, 0)));
+    assert_eq!(to_map_coordinates("AA1").ok(), Some((26, 0)));
+    assert_eq!(to_map_coordinates("AB1").ok(), Some((27, 0)));
+    assert_eq!(to_map_coordinates("YZ1").ok(), Some((675, 0)));
+    assert_eq!(to_map_coordinates("ZA1").ok(), Some((676, 0)));
+    assert_eq!(to_map_coordinates("ZB1").ok(), Some((677, 0)));
+}
 
 pub fn from_map_coordinates(column: i32, row: i32) -> String {
-    if column >= (27 * 26) {
-        panic!("parameter column out of range [0..{}): {}", 27 * 26, column);
+    if column >= (27 * BASE) {
+        panic!(
+            "parameter column out of range [0..{}): {}",
+            27 * BASE,
+            column
+        );
     }
-    let alphabet: Vec<char> = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect();
-    let first_c: usize = (column / 26) as usize;
-    let second_c: usize = (column % 26) as usize;
+    let first_c: usize = (column / BASE) as usize;
+    let second_c: usize = (column % BASE) as usize;
 
     let s: String = format!(
         "{}{}{}",
-        if column >= 26 {
-            alphabet[first_c - 1].into()
+        if column >= BASE {
+            ALPHABET[first_c - 1].into()
         } else {
             ' '
         },
-        alphabet[second_c],
+        ALPHABET[second_c],
         row + 1,
     );
     s.trim().to_string()

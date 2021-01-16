@@ -17,3 +17,5 @@ rand = "0.7.3"
 caith = "3.1.0" # dice roller
 tetra="0.5.6"
 structopt = "0.3.21"
+lazy_static = "1.4.0"
+regex = "1.4.2"
