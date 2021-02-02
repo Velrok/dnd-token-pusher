@@ -8,16 +8,19 @@ A simple D&D map engine with command support.
 * Render background image ✅
 * Render grid / Cell coordinates ✅
 * Load initial commands from file (`./dnd-token-pusher dungeon1_save20201229.txt`) ✅
+* Command Input: Battlemap ✅
 * Token Part 1 (image, position): Rendering, Commands ✅
 * Fog Of War (Rendering, Command Inputs: Reveal/Shadow)
 * Token rendering: visible bool, size
-* Command Input: Battlemap
+* Token handling: multiple tokens
 
 * Save state (full event log including initial commands from input file)
 * Render dead tokens differently
 * Initiative Order: (Rendering, Token attribute, Command)
 * Command Input: tokens part 2 (health, max-health, damage)
 * Command Input: dice rolls
+
+* Quake style in-game terminal
 
 ## Concepts
 
@@ -57,7 +60,7 @@ Maybe Later:
 ## Example: 1 player, 1 monster
 
 ```bash
-battlemap --url=https://i.redd.it/q2uayh37ndb41.png --width=12 --height=12
+battlemap --url=https://i.redd.it/q2uayh37ndb41.png --columns=12 --rows=12
 token goblinking --image=goblin.png --name=Goblin --size=small --max-health=5 --pos=A1 --initiative=11
 token barb --image=barbarian.png --name=Kuglor --size=medium --health=15 --max-health=22 --pos=D3 --visible
 token goblinking --image=dead.png --health=0
