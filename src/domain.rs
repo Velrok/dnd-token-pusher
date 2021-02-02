@@ -112,10 +112,13 @@ impl Token {
     }
 
     pub fn render(&self, ctx: &mut Context, bm: &Battlemap) {
+        use crate::chess::Coordinates;
+
+        let c = Coordinates::Chess(self.pos.to_owned());
+        let (col, row) = c.to_position();
+
         let w = self.texture.width() as f32;
         let h = self.texture.height() as f32;
-
-        let (col,row) = (1, 0); // A2 TODO
 
         let (tile_w, tile_h) = bm.grid_size();
 

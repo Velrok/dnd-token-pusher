@@ -124,6 +124,24 @@ impl Coordinates {
             Coordinates::Map((col, row)) => Coordinates::Chess(from_map_coordinates(*col, *row)),
         }
     }
+
+    pub fn to_position(&self) -> (i32, i32) {
+        match self {
+            Coordinates::Chess(s) => {
+                let r = to_map_coordinates(s);
+                r.unwrap()
+            },
+            Coordinates::Map(pos) => *pos,
+        }
+    }
+}
+
+#[test]
+fn test_to_position() {
+    assert_eq!(
+        (0, 0),
+        Coordinates::Chess("A1".to_string()).to_position()
+    );
 }
 
 #[test]
