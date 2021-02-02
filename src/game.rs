@@ -126,37 +126,9 @@ pub fn run(ctx: &mut Context, game_state: &mut GameState, cmd: &commands::Comman
                 token_opts.initiative.or(token_ref.map(|t| t.initiative)).unwrap_or(1),
             );
 
-            // let new_token = match &game_state.token {
-            // None => domain::Token::new(
-            //     ctx,
-            //     // id, image, name, size, max-health, pos, initiate
-            //     token_opts.token_id.to_owned(),
-            //     token_opts.image.to_owned().unwrap(),
-            //     token_opts.name.to_owned().unwrap(),
-            //     token_opts.size.to_owned().unwrap(),
-            //     token_opts.max_health.unwrap(),
-            //     token_opts.pos.to_owned().unwrap(),
-            //     token_opts.initiative.unwrap(),
-            // ),
-            // Some(ref t) => domain::Token::new(
-            //     ctx,
-            //     // id, image, name, size, max-health, pos, initiate
-            //     token_opts.token_id.to_owned(),
-            //     token_opts.image.to_owned().unwrap_or(t.image.to_owned()),
-            //     token_opts.name.to_owned().unwrap_or(t.name.to_owned()),
-            //     token_opts.size.to_owned().unwrap_or(t.size.to_owned()),
-            //     token_opts.max_health.unwrap_or(t.max_health),
-            //     token_opts.pos.to_owned().unwrap_or(t.pos.to_owned()),
-            //     token_opts.initiative.unwrap_or(t.initiative),
-            // )
-            // };
-
-
             // lookup or create token by token_opts.token_id
             // update fields
             game_state.token = Some(new_token);
-
-            println!("Token State: {:?}", game_state.token);
         }
     }
 }

@@ -8,8 +8,9 @@ A simple D&D map engine with command support.
 * Render background image ✅
 * Render grid / Cell coordinates ✅
 * Load initial commands from file (`./dnd-token-pusher dungeon1_save20201229.txt`) ✅
-* Token Part 1 (image, position, visible, size): Rendering, Commands
+* Token Part 1 (image, position): Rendering, Commands ✅
 * Fog Of War (Rendering, Command Inputs: Reveal/Shadow)
+* Token rendering: visible bool, size
 * Command Input: Battlemap
 
 * Save state (full event log including initial commands from input file)
