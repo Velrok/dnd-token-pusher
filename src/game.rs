@@ -29,7 +29,7 @@ pub struct GameState {
 impl GameState {
     pub fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         let args: Vec<String> = ::std::env::args().collect();
-        println!("{:?}", args);
+        // println!("{:?}", args);
         let dm_mode = args.contains(&String::from("--dm"));
         let file_name = args
             .iter()
@@ -46,7 +46,7 @@ impl GameState {
             // read file and produce messages
             // tried to have this in main thread but rust didn't like it
             let file_content = fs::read_to_string(file_name);
-            println!("file_content> {:?}", file_content);
+            // println!("file_content> {:?}", file_content);
 
             // tread each line as if it where typed by a person
             for l in file_content.unwrap().lines() {
@@ -140,7 +140,7 @@ impl State for GameState {
                 println!("msg> {}", msg); // debug
                 let cmds = commands::parse(msg);
                 for cmd in cmds {
-                    println!("Command: {:?}", cmd); // debug
+                    // println!("Command: {:?}", cmd); // debug
                     match cmd {
                         Ok(c) => run(ctx, self, &c),
                         Err(e) => println!("Err: {}", e),
